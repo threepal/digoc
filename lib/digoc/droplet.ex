@@ -147,8 +147,12 @@ defmodule DigOc.Droplet do
   defp task(id, action, extra \\ %{}) do
     map = Map.merge( %{ type: action }, extra )
     res = postreq("droplets/#{ id }/actions", map) 
-    action_id = feature_from_action(res, :id)
-    spawn(__MODULE__, :wait_for_action, [id, action_id])
+    if res[:id] != "unprocessable_entity" do 
+      action_id = feature_from_action(res, :id)
+      spawn(__MODULE__, :wait_for_action, [id, action_id])
+    else 
+      res = :error
+    end
     res
   end    
 
